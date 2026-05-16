@@ -54,4 +54,11 @@ If you find our work useful for your research, please consider citing our paper:
 
 ```
 
+## The anthor and affiliation of this project
+```
+项目名称（Project Name）：Immutri_backdoor_defense
+项目作者（Author）：Zaobo He，Jin Wan, Yusen Li，jie Zhong
+作者单位（Affiliation）：暨南大学网络空间安全学院（College of Cyber Security，Jinan University）
+```
+
 ```
