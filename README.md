@@ -1,8 +1,29 @@
-# Immunity against Backdoor
+# IMMUTRI: Immunity-enabled Tri-Model Defense System
 
 ## Abstract
 
-The reliance of deep neural networks (DNNs) on third-party data and cloud-based training exacerbates stealthy backdoor risks, while current defenses face three limitations: poor generalization to complex triggers, dependency on clean data subsets, and prohibitive costs for trigger reverse engineering.In this paper, we experimentally observe that backdoor attacks exploit smooth loss surfaces in low-dimensional trigger subspaces, inducing rapid model overfitting and resulting in a cross-scale loss gap between poisoned and clean samples. Building on this observation, we propose \textbf{Immunity-enabled Tri-Model (ImmuTri)} Defense System, a robust inference-time framework integrating three core techniques:  Loss-Guided Feature Decoupling isolates suspicious samples via dynamic thresholds and identifies target classes through manifold shifts; Function Perturbation-Driven Purification amplifies loss discrepancies via label noise to train backdoor-sensitive detectors; and a cascaded firewall synergizes original, backdoor-sensitive, and mildly poisoned models for real-time blocking. Evaluated against five attacks on CIFAR10/ImageNet-10/GTSRB, this functional synergy achieves near-perfect immunity:  On GTSRB, it attains $100.00\%$ True Positive Rate (TPR) and $1.79\%$ False Positive Rate (FPR), while simultaneously demonstrating exceptional isolation capability with $\mathbf{98.22\%}$ True Negative Rate (TNR) and $\mathbf{0.00\%}$ False Negative Rate (FNR). The framework suppresses the average Attack Success Rate (ASR) from $92.50\%$ to 1.32\% and elevates Clean Accuracy (CA) to $94.57\%$. 
+Motivated by the observation that backdoor attacks exploit smooth loss surfaces in low-dimensional trigger subspaces, we propose **IMMUTRI**, a two-stage post-training white-box defense for single-target data-poisoning backdoors. 
+
+**Stage 1 - Loss-Guided Feature Decoupling (LGFD):** Selects a conservative first-minimum loss operating point, infers the likely attacked target label, and refines the resulting candidate set through class-conditional feature matching.
+
+**Stage 2 - Tri-Model Functional Synergy (TMFS):** Fine-tunes a copy of the delivered model with fresh uniform label noise to obtain an auxiliary detector, uses it to purify the training set, retrains a reference model on the retained data, and deploys a tri-model firewall.
+
+All expensive processing is offline; online inference requires at most three forward passes per query. The framework jointly outputs a purified retained training subset for repair and a deployment-time reject-and-answer mechanism without requiring trusted clean data or trigger reconstruction.
+
+Evaluated against five attacks on CIFAR10/ImageNet-10/GTSRB, this functional synergy achieves near-perfect immunity with exceptional isolation capability while suppressing the average Attack Success Rate (ASR) and elevating Clean Accuracy (CA).
+
+## Method Overview
+
+### Stage 1: Loss-Guided Feature Decoupling (LGFD)
+1. **Loss Spectrum Analysis**: Compute per-sample losses and detect the first minimum operating point
+2. **Target Label Inference**: Analyze prediction patterns on suspicious samples to infer the attack target
+3. **Directional Feature Matching**: Refine candidates using class-conditional feature alignment with the backdoor direction
+
+### Stage 2: Tri-Model Functional Synergy (TMFS)
+1. **Auxiliary Detector Training**: Fine-tune a model copy with uniform label noise to create a backdoor-sensitive detector
+2. **Dataset Purification**: Use the detector to identify and retain clean samples based on loss thresholds
+3. **Reference Model Training**: Train a clean reference model on the purified dataset
+4. **Tri-Model Firewall Deployment**: Deploy three models (original, detector, reference) for consensus-based inference 
 
 
 ## Getting Started
@@ -34,20 +55,26 @@ Download the pre-processed datasets and unzip them into the `data` folder. The f
 #### 1. Train Backdoored Models
 
 Train a backdoored model on CIFAR10 for BadNets attack:
+```bash
+python attack.py --dataset cifar10 --attack badnets --batch_size 64 --gpu 0
 ```
-python attack.py --dataset cifar10 --attack badnets --batch_size 6
-4 --gpu 0
-```
-The results of attack can be found in folder `attack`.
+The trained backdoor model will be saved in the `save` folder.
 
+#### 2. Deploy IMMUTRI Defense
 
-#### 2. Utilize ImmuTri for Defense
+Apply the two-stage IMMUTRI defense to a backdoored model:
+```bash
+python ImmuTri.py --dataset cifar10 --attack badnets --batch_size 64 --gpu 0
+```
 
-Defend a backdoored model on CIFAR10 for BadNets attack:
-```
-python ImmuTri.py --dataset cifar10 --attack badnets --batch_size 
-64 --gpu 0
-```
+This will execute:
+- **LGFD Stage**: Analyze loss distribution, infer target label, and refine suspicious samples
+- **TMFS Stage**: Train auxiliary detector, purify dataset, train reference model, and deploy tri-model firewall
+
+The following models will be saved in the `save` folder:
+- `{dataset}_{attack}_backdoor_model.pth`: Original delivered model (fbd)
+- `{dataset}_{attack}_auxiliary_detector.pth`: Auxiliary detector trained with uniform noise (fenh)
+- `{dataset}_{attack}_reference_model.pth`: Reference model trained on purified data (fref)
 ## Citation
 
 If you find our work useful for your research, please consider citing our paper:
