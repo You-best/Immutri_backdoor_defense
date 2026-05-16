@@ -1,0 +1,25 @@
+# PyTorch deep learning framework
+torch
+torchvision
+
+# For scientific and numerical operations
+numpy
+scipy
+numba
+
+# For machine learning utilities (e.g., metrics)
+scikit-learn
+
+# For image processing (PIL is the Python Imaging Library)
+Pillow
+
+# For progress bars
+tqdm
+
+# For plotting
+matplotlib
+
+# As requested by you
+mlconfig==0.1.0
+pilgram
+
