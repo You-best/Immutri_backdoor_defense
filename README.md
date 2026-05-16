@@ -56,7 +56,9 @@ If you find our work useful for your research, please consider citing our paper:
 
 ```
 
-## The anthor and affiliation of this project
+## 项目声明 Project Statement
+本项目的作者及单位
+The anthor and affiliation of this project
 ```
 
 项目名称（Project Name）：Immutri_backdoor_defense
